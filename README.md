@@ -56,7 +56,7 @@ docker run -d \
     -v /var/lib/docker/volumes:/var/lib/docker/volumes \
     -v /opt:/opt \
     -e TZ=Asia/Shanghai \
-    moelin/1panel:latest
+    xeath/1panel-in-docker:latest
 ```
 
 #### 3.1.2 部署文件
@@ -75,7 +75,7 @@ services:
       - /opt:/opt
     environment:
       - TZ=Asia/Shanghai
-    image: moelin/1panel:latest
+    image: xeath/1panel-in-docker:latest
     labels:  
       createdBy: "Apps"
 ```
@@ -95,7 +95,7 @@ podman run -d \
     -v /var/lib/containers/storage/volumes:/var/lib/docker/volumes \
     -v /opt:/opt \
     -e TZ=Asia/Shanghai \
-    moelin/1panel:latest
+    xeath/1panel-in-docker:latest
 ```
 
 #### 3.1.2 部署文件
@@ -114,7 +114,7 @@ services:
       - /opt:/opt
     environment:
       - TZ=Asia/Shanghai
-    image: moelin/1panel:latest
+    image: xeath/1panel-in-docker:latest
     labels:  
       createdBy: "Apps"
 ```
