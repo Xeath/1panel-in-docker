@@ -32,10 +32,10 @@ function Fake_Systemctl()
     fi
 }
 
-# 简单判断是不是初次启动
-if [[ ! -e /usr/bin/systemctl ]] || [[ ! -e /usr/bin/reboot ]]; then
+# 简单判断是不是首次启动
+if [[ ! -e /usr/bin/systemctl ]] || [[ ! -e /usr/bin/reboot ]] || [[ ! -e /usr/sbin/cron ]]; then
     apt-get update
-    apt-get install ca-certificates curl gnupg dpkg wget -y
+    apt-get install ca-certificates curl gnupg dpkg wget cron -y
     which docker >/dev/null 2>&1
     if [[ $? -ne 0 ]]; then
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
