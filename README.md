@@ -20,6 +20,7 @@
 
 > **以下变量为首次启动安装的过程根据需求设置**
 
+  - 面板分支 `INSTALL_MODE=stable`（默认：stable 稳定分支，可选 dev 开发分支）
   - 安装目录 `PANEL_BASE_DIR=/opt`（默认：/opt）
   - 面板端口 `PANEL_PORT=8888`（默认：随机）
   - 管理账户 `PANEL_USERNAME=admin`（默认：随机）
