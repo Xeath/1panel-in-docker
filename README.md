@@ -36,13 +36,13 @@
 
 #### 2.2.1 Docker
 
-  - 套接字 `/var/run/docker.sock:/var/run/docker.sock`
-  - 存储卷 `/var/lib/docker/volumes:/var/lib/docker/volumes`
+  - Socket `/var/run/docker.sock:/var/run/docker.sock`
+  - Docker `/var/lib/docker:/var/lib/docker`
 
 #### 2.2.2 Podman
 
-  - 套接字 `/run/podman/podman.sock:/var/run/docker.sock`
-  - 存储卷 `/var/lib/containers/storage/volumes:/var/lib/docker/volumes`
+  - Socket `/run/podman/podman.sock:/var/run/docker.sock`
+  - Podman `/var/lib/containers/storage:/var/lib/docker`
 
 ## 3. 部署方式
 
@@ -56,7 +56,7 @@ docker run -dt \
     --restart always \
     --network host \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v /var/lib/docker/volumes:/var/lib/docker/volumes \
+    -v /var/lib/docker:/var/lib/docker \
     -v /opt:/opt \
     -e TZ=Asia/Shanghai \
     xeath/1panel-in-docker:latest
@@ -74,7 +74,7 @@ services:
     network_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /var/lib/docker:/var/lib/docker
       - /opt:/opt
     environment:
       - TZ=Asia/Shanghai
@@ -95,7 +95,7 @@ podman run -dt \
     --restart always \
     --network bridge \
     -v /run/podman/podman.sock:/var/run/docker.sock \
-    -v /var/lib/containers/storage/volumes:/var/lib/docker/volumes \
+    -v /var/lib/containers/storage:/var/lib/docker \
     -v /opt:/opt \
     -e TZ=Asia/Shanghai \
     xeath/1panel-in-docker:latest
@@ -113,7 +113,7 @@ services:
     network_mode: "bridge"
     volumes:
       - /run/podman/podman.sock:/var/run/docker.sock
-      - /var/lib/containers/storage/volumes:/var/lib/docker/volumes
+      - /var/lib/containers/storage:/var/lib/docker
       - /opt:/opt
     environment:
       - TZ=Asia/Shanghai
