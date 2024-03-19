@@ -81,10 +81,13 @@ EOL
 
 rm -rf /tmp/1panel-*.tar.gz
 cd /tmp/1panel-*
-sed -i '1 a function read()\n{\n    return 1\n}\n' install.sh
+sed -i '1 a function read()\n{\n    return 0\n}\n' install.sh
 bash install.sh
 EOL
     chmod +x /tmp/install.sh
+    if [[ -z "$PANEL_BASE_DIR" ]]; then
+        export PANEL_BASE_DIR=/opt
+    fi
     # 1Panel 官方安装命令
     # 来源：https://1panel.cn/docs/installation/online_installation/
     curl -sSL https://resource.fit2cloud.com/1panel/package/quick_start.sh -o /tmp/quick_start.sh
