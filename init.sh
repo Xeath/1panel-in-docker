@@ -17,7 +17,9 @@ function Fake_Systemctl()
         elif [[ "$1" = "start" ]]; then
             pkill -0 1panel
             if [[ $? -ne 0 ]]; then
+                sleep 3
                 /usr/bin/1panel > /tmp/1panel.log 2>&1 &
+                sleep 3
             fi
         elif [[ "$1" = "status" ]]; then
             pkill -0 1panel
@@ -149,6 +151,11 @@ expect {
     "面板密码" {
         sleep 1
         send "$PANEL_PASSWORD\n"
+    }
+}
+expect {
+    "安装已完成" {
+        sleep 1
         interact
     }
 }
@@ -171,4 +178,8 @@ fi
 
 Fake_Systemctl start 1panel
 
-exec "/bin/bash"
+sleep 1
+PANEL_PID=$(pgrep 1panel)
+if [[ -n "$PANEL_PID" ]]; then
+    tail --pid "$PANEL_PID" -f /tmp/1panel.log
+fi
