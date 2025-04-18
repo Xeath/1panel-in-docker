@@ -94,7 +94,7 @@ services:
       createdBy: "Apps"
 ```
 
-然后 `docker-compose up -dt` 运行
+然后 `docker-compose up -d` 运行
 
 ### 3.2 Podman
 **Podman 虽然也可以运行，但是网络不支持 host，使用上存在一些问题**
@@ -133,4 +133,4 @@ services:
       createdBy: "Apps"
 ```
 
-然后 `podman-compose up -dt` 运行
+然后 `podman-compose up -d` 运行
