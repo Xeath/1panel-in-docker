@@ -2,6 +2,7 @@
 
 # 首次启动环境变量
 # 安装来源: INSTALL_SOURCE
+# 面板分支: INSTALL_MODE
 # 安装目录: PANEL_BASE_DIR
 # 面板端口: PANEL_PORT
 # 安全入口: PANEL_ENTRANCE
@@ -34,6 +35,16 @@ function Fake_Systemctl()
     fi
 }
 
+if [[ ! -z "$1" ]]; then
+    if [[ "$1" = "restart" ]] || [[ "$1" = "reload" ]];then
+        Fake_Systemctl stop $2
+        Fake_Systemctl start $2
+    else
+        Fake_Systemctl $1 $2
+    fi
+    exit 0
+fi
+
 # 简单判断是不是首次启动
 if [[ ! -e /usr/bin/systemctl ]] || [[ ! -e /usr/bin/reboot ]] || [[ ! -e /usr/sbin/cron ]]; then
     if [[ ! -e /etc/timezone ]]; then
@@ -44,7 +55,7 @@ if [[ ! -e /usr/bin/systemctl ]] || [[ ! -e /usr/bin/reboot ]] || [[ ! -e /usr/s
     fi
     set -e
     apt-get update
-    apt-get install -y ca-certificates curl gnupg dpkg wget cron expect apt-utils
+    DEBIAN_FRONTEND=noninteractive TZ="$TZ" apt-get install -y ca-certificates curl gnupg dpkg wget cron expect apt-utils tzdata
     if [[ "$INSTALL_SOURCE" = "auto" ]]; then
         export INSTALL_SOURCE="intl"
         if [[ "$(curl -s ipinfo.io/country)" = "CN" ]]; then
@@ -91,7 +102,9 @@ fi
 echo "ok"
 EOL
     chmod +x /usr/bin/reboot
-
+fi
+if ! which 1panel > /dev/null 2>&1; then
+    set -e
     cd /tmp/
     # 1Panel 官方安装命令
     if [[ "$INSTALL_SOURCE" != "cn" ]]; then
@@ -105,7 +118,7 @@ EOL
     cat > "/tmp/$EXPECT_SCRIPT_NAME.sh" <<EOL
 #!/usr/bin/expect -f
 
-set timeout 1200
+set timeout 600
 spawn bash /tmp/quick_start.sh
 expect {
     "language choice:" {
@@ -143,16 +156,7 @@ EOL
     expect -f "$EXPECT_SCRIPT_NAME.sh"
     rm -f /tmp/install.sh "$EXPECT_SCRIPT_NAME.sh"
     rm -rf /tmp/1panel-*
-fi
-
-if [[ ! -z "$1" ]]; then
-    if [[ "$1" = "restart" ]] || [[ "$1" = "reload" ]];then
-        Fake_Systemctl stop $2
-        Fake_Systemctl start $2
-    else
-        Fake_Systemctl $1 $2
-    fi
-    exit 0
+    set +e
 fi
 
 if [[ -e "/var/run/crond.pid" ]]; then

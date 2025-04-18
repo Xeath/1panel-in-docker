@@ -10,7 +10,9 @@
 
 ## 1. 注意事项
 
-由于容器内部 `systemd` 限制，1Panel 可能有部分功能不完善。另外 1Panel 官方只提供 `amd64`、`arm64`、`armv7`、`ppc64le`、`s390x` 这些指令集的面板程序，所以目前只提供这些镜像。
+1. 由于容器内部 `systemd` 限制，1Panel 可能有部分功能不完善；
+2. 1Panel 官方只支持 `amd64`、`arm64`、`armv7`、`ppc64le`、`s390x` 等指令集；
+3. 面板安装脚本在执行自动安装 Docker 可能会出现安装时间过长，重启容器让安装过程继续即可（可能需要多次）。
 
 ## 2. 相关设置
 
@@ -80,6 +82,7 @@ services:
     container_name: 1panel # 容器名
     restart: always
     network_mode: "host"
+    tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker:/var/lib/docker
@@ -119,6 +122,7 @@ services:
     container_name: 1panel # 容器名
     restart: always
     network_mode: "bridge"
+    tty: true
     volumes:
       - /run/podman/podman.sock:/var/run/docker.sock
       - /var/lib/containers/storage:/var/lib/docker
