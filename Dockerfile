@@ -20,4 +20,4 @@ WORKDIR /
 VOLUME /var/run/docker.sock
 
 # 启动
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
