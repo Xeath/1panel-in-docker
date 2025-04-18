@@ -62,7 +62,7 @@
 #### 3.1.1 命令行
 
 ```
-docker run -dt \
+docker run -d \
     --name 1panel \
     --restart always \
     --network host \
@@ -83,7 +83,6 @@ services:
     container_name: 1panel # 容器名
     restart: always
     network_mode: "host"
-    tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/docker:/var/lib/docker
@@ -102,7 +101,7 @@ services:
 #### 3.1.1 命令行
 
 ```
-podman run -dt \
+podman run -d \
     --name 1panel \
     --restart always \
     --network bridge \
@@ -123,7 +122,6 @@ services:
     container_name: 1panel # 容器名
     restart: always
     network_mode: "bridge"
-    tty: true
     volumes:
       - /run/podman/podman.sock:/var/run/docker.sock
       - /var/lib/containers/storage:/var/lib/docker
