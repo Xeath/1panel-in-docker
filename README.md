@@ -20,9 +20,11 @@
 
 > **以下变量为首次启动安装的过程根据需求设置**
 
+  - 安装来源 `INSTALL_SOURCE=auto`（默认：auto 自动选择，可选 intl 使用 1panel.pro 的安装脚本，或 cn 使用 1panel.cn 的安装脚本）
   - 面板分支 `INSTALL_MODE=stable`（默认：stable 稳定分支，可选 dev 开发分支）
   - 安装目录 `PANEL_BASE_DIR=/opt`（默认：/opt）
   - 面板端口 `PANEL_PORT=8888`（默认：随机）
+  - 安全入口 `PANEL_ENTRANCE=entrance`（默认：随机）
   - 管理账户 `PANEL_USERNAME=admin`（默认：随机）
   - 管理密码 `PANEL_PASSWORD=admin888`（默认：随机）
 
@@ -32,7 +34,13 @@
 
   - 数据目录 `/opt:/opt`
 
-    根据自己的需求修改，容器内目录和容器外目录路径需要保持一致
+    根据自己的需求修改
+
+    **容器内目录和容器外目录路径需要保持一致！**
+
+    **容器内目录和容器外目录路径需要保持一致！**
+
+    **容器内目录和容器外目录路径需要保持一致！**
 
 #### 2.2.1 Docker
 
@@ -62,7 +70,7 @@ docker run -dt \
     xeath/1panel-in-docker:latest
 ```
 
-#### 3.1.2 部署文件
+#### 3.1.2 编排部署
 
 创建一个 `docker-compose.yml` 文件，内容类似如下
 ```
@@ -101,7 +109,7 @@ podman run -dt \
     xeath/1panel-in-docker:latest
 ```
 
-#### 3.1.2 部署文件
+#### 3.1.2 编排部署
 
 创建一个 `docker-compose.yml` 文件，内容类似如下
 ```

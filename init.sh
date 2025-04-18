@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # 首次启动环境变量
+# 安装来源: INSTALL_SOURCE
 # 安装目录: PANEL_BASE_DIR
 # 面板端口: PANEL_PORT
+# 安全入口: PANEL_ENTRANCE
 # 管理账户: PANEL_USERNAME
 # 管理密码: PANEL_PASSWORD
 
@@ -34,24 +36,39 @@ function Fake_Systemctl()
 
 # 简单判断是不是首次启动
 if [[ ! -e /usr/bin/systemctl ]] || [[ ! -e /usr/bin/reboot ]] || [[ ! -e /usr/sbin/cron ]]; then
+    if [[ ! -e /etc/timezone ]]; then
+        if [[ -n "$TZ" ]]; then
+            export TZ=Asia/Shanghai
+        fi
+        echo -n "$TZ" > /etc/timezone
+    fi
+    set -e
     apt-get update
-    apt-get install ca-certificates curl gnupg dpkg wget cron -y
-    which docker >/dev/null 2>&1
-    if [[ $? -ne 0 ]]; then
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        chmod a+r /etc/apt/keyrings/docker.gpg
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
-        apt-get update
-        apt-get install docker-ce-cli -y
+    apt-get install -y ca-certificates curl gnupg dpkg wget cron expect apt-utils
+    if [[ "$INSTALL_SOURCE" = "auto" ]]; then
+        export INSTALL_SOURCE="intl"
+        if [[ "$(curl -s ipinfo.io/country)" = "CN" ]]; then
+            export INSTALL_SOURCE="cn"
+        fi
+    fi
+    if [[ "$INSTALL_SOURCE" != "cn" ]]; then
+        # 中国大陆的服务器可能无法在线安装，使用 1Panel 的安装脚本自动安装
+        if ! which docker > /dev/null 2>&1; then
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            chmod a+r /etc/apt/keyrings/docker.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
+            apt-get update
+            apt-get install docker-ce-cli -y
+        fi
+        if ! which docker-compose > /dev/null 2>&1; then
+            curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+        fi
     fi
     apt-get clean
     rm -rf /var/lib/apt/lists/*
-    which docker-compose >/dev/null 2>&1
-    if [[ $? -ne 0 ]]; then
-        curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-        chmod +x /usr/local/bin/docker-compose
-    fi
+    set +e
 
     rm -rf /usr/bin/systemctl
     cat > /usr/bin/systemctl <<EOL
@@ -76,24 +93,55 @@ EOL
     chmod +x /usr/bin/reboot
 
     cd /tmp/
-    cat > /tmp/install.sh <<EOL
-#!/bin/bash
-
-rm -rf /tmp/1panel-*.tar.gz
-cd /tmp/1panel-*
-sed -i '1 a function read()\n{\n    return 0\n}\n' install.sh
-bash install.sh
-EOL
-    chmod +x /tmp/install.sh
-    if [[ -z "$PANEL_BASE_DIR" ]]; then
-        export PANEL_BASE_DIR=/opt
-    fi
     # 1Panel 官方安装命令
-    # 来源：https://1panel.cn/docs/installation/online_installation/
-    curl -sSL https://resource.fit2cloud.com/1panel/package/quick_start.sh -o /tmp/quick_start.sh
-    sed -i 's/install\.sh/\/tmp\/install.sh/' /tmp/quick_start.sh
-    bash /tmp/quick_start.sh
-    rm -rf /tmp/install.sh
+    if [[ "$INSTALL_SOURCE" != "cn" ]]; then
+        # 来源：https://docs.1panel.pro/installation/
+        curl -sSL https://resource.1panel.pro/quick_start.sh -o /tmp/quick_start.sh
+    else
+        # 来源：https://1panel.cn/docs/installation/online_installation/
+        curl -sSL https://resource.fit2cloud.com/1panel/package/quick_start.sh -o /tmp/quick_start.sh
+    fi
+    EXPECT_SCRIPT_NAME=$(cat /dev/urandom | head -n 16 | md5sum | head -c 32)
+    cat > "/tmp/$EXPECT_SCRIPT_NAME.sh" <<EOL
+#!/usr/bin/expect -f
+
+set timeout 1200
+spawn bash /tmp/quick_start.sh
+expect {
+    "language choice:" {
+        send "2\n"
+    }
+}
+expect {
+    "安装目录" {
+        send "$PANEL_BASE_DIR\n"
+    }
+}
+expect {
+    "端口" {
+        send "$PANEL_PORT\n"
+    }
+}
+expect {
+    "安全入口" {
+        send "$PANEL_ENTRANCE\n"
+    }
+}
+expect {
+    "面板用户" {
+        send "$PANEL_USERNAME\n"
+    }
+}
+expect {
+    "面板密码" {
+        sleep 1
+        send "$PANEL_PASSWORD\n"
+        interact
+    }
+}
+EOL
+    expect -f "$EXPECT_SCRIPT_NAME.sh"
+    rm -f /tmp/install.sh "$EXPECT_SCRIPT_NAME.sh"
     rm -rf /tmp/1panel-*
 fi
 
