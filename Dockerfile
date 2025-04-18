@@ -8,10 +8,10 @@ ENV TZ=Asia/Shanghai
 WORKDIR /app
 
 # 复制必要的文件
-COPY ./init.sh .
+COPY ./entrypoint.sh .
 
 # 设置文件权限
-RUN chmod +x ./init.sh
+RUN chmod +x ./entrypoint.sh
 
 # 设置工作目录为根目录
 WORKDIR /
@@ -20,4 +20,4 @@ WORKDIR /
 VOLUME /var/run/docker.sock
 
 # 启动
-CMD ["/bin/bash", "/app/init.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
